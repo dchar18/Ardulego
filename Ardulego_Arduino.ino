@@ -55,6 +55,8 @@ const int echo_back = 11;
 const int trigger_front = 10;
 const int echo_front = 9;
 
+bool alternator; // true -> front, false -> back
+
 void setup() {
   Serial.begin(9600);
   Serial3.begin(9600);
@@ -149,6 +151,54 @@ void loop() {
         else if(c == '5'){ // right signal
           rightSignal();
         }
+    }
+
+    if(alternator){ // using front
+      digitalWrite(trigger_front, LOW);
+      delayMicroseconds(2);
+  
+      digitalWrite(trigger_front, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(trigger_front, LOW);
+  
+      duration_front = pulseIn(echo_front, HIGH);
+      distance_front = duration_front * 0.034 / 2; // in cm
+  
+      Serial.print("Distance front: ");
+      Serial.println(distance_front);
+      alternator = false;
+    }
+    else{
+      digitalWrite(trigger_back, LOW);
+      delayMicroseconds(2);
+  
+      digitalWrite(trigger_back, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(trigger_back, LOW);
+  
+      duration_back = pulseIn(echo_back, HIGH);
+      distance_back = duration_back * 0.034 / 2; // in cm
+  
+      Serial.print("Distance back: ");
+      Serial.println(distance_back);
+      alternator = true;
+    }
+    if((distance_front < 10) && (distance_back < 10)){
+      Serial.print("Distance front: ");
+      Serial.println(distance_front);
+      Serial.print("Distance back: ");
+      Serial.println(distance_back);
+      flash_both();
+    }
+    else if(distance_front < 10){
+        Serial.print("Distance front: ");
+        Serial.println(distance_front);
+        flash_front();
+    }
+    else if(distance_back < 10){
+      Serial.print("Distance back: ");
+      Serial.println(distance_back);
+      flash_back();
     }
   
 }
@@ -292,4 +342,122 @@ void rightSignal(){
   digitalWrite(LED_bro, HIGH);
   digitalWrite(LED_hri, HIGH);
   digitalWrite(LED_hro, HIGH);
+}
+
+void flash_front(){
+  bool on = digitalRead(LED_hri);
+  digitalWrite(LED_hro, LOW);
+  digitalWrite(LED_hri, LOW);
+  digitalWrite(LED_hli, LOW);
+  digitalWrite(LED_hlo, LOW);
+  delay(150);
+  digitalWrite(LED_hro, HIGH);
+  digitalWrite(LED_hri, HIGH);
+  digitalWrite(LED_hli, HIGH);
+  digitalWrite(LED_hlo, HIGH);
+  delay(150);
+  digitalWrite(LED_hro, LOW);
+  digitalWrite(LED_hri, LOW);
+  digitalWrite(LED_hli, LOW);
+  digitalWrite(LED_hlo, LOW);
+  delay(150);
+  digitalWrite(LED_hro, HIGH);
+  digitalWrite(LED_hri, HIGH);
+  digitalWrite(LED_hli, HIGH);
+  digitalWrite(LED_hlo, HIGH);
+  
+  if(!on){
+    delay(150);
+    digitalWrite(LED_hro, LOW);
+    digitalWrite(LED_hri, LOW);
+    digitalWrite(LED_hli, LOW);
+    digitalWrite(LED_hlo, LOW);
+  }
+}
+
+void flash_back(){
+  bool on = digitalRead(LED_bri);
+  digitalWrite(LED_bro, LOW);
+  digitalWrite(LED_bri, LOW);
+  digitalWrite(LED_bli, LOW);
+  digitalWrite(LED_blo, LOW);
+  delay(150);
+  digitalWrite(LED_bro, HIGH);
+  digitalWrite(LED_bri, HIGH);
+  digitalWrite(LED_bli, HIGH);
+  digitalWrite(LED_blo, HIGH);
+  delay(150);
+  digitalWrite(LED_bro, LOW);
+  digitalWrite(LED_bri, LOW);
+  digitalWrite(LED_bli, LOW);
+  digitalWrite(LED_blo, LOW);
+  delay(150);
+  digitalWrite(LED_bro, HIGH);
+  digitalWrite(LED_bri, HIGH);
+  digitalWrite(LED_bli, HIGH);
+  digitalWrite(LED_blo, HIGH);
+  
+  if(!on){
+    delay(150);
+    digitalWrite(LED_bro, LOW);
+    digitalWrite(LED_bri, LOW);
+    digitalWrite(LED_bli, LOW);
+    digitalWrite(LED_blo, LOW);
+  }
+}
+
+void flash_both(){
+  bool on_front = digitalRead(LED_hri);
+  bool on_back = digitalRead(LED_bri);
+  digitalWrite(LED_hro, LOW);
+  digitalWrite(LED_hri, LOW);
+  digitalWrite(LED_hli, LOW);
+  digitalWrite(LED_hlo, LOW);
+  digitalWrite(LED_bro, LOW);
+  digitalWrite(LED_bri, LOW);
+  digitalWrite(LED_bli, LOW);
+  digitalWrite(LED_blo, LOW);
+  delay(150);
+  digitalWrite(LED_hro, HIGH);
+  digitalWrite(LED_hri, HIGH);
+  digitalWrite(LED_hli, HIGH);
+  digitalWrite(LED_hlo, HIGH);
+  digitalWrite(LED_bro, HIGH);
+  digitalWrite(LED_bri, HIGH);
+  digitalWrite(LED_bli, HIGH);
+  digitalWrite(LED_blo, HIGH);
+  delay(150);
+  digitalWrite(LED_hro, LOW);
+  digitalWrite(LED_hri, LOW);
+  digitalWrite(LED_hli, LOW);
+  digitalWrite(LED_hlo, LOW);
+  digitalWrite(LED_bro, LOW);
+  digitalWrite(LED_bri, LOW);
+  digitalWrite(LED_bli, LOW);
+  digitalWrite(LED_blo, LOW);
+  delay(150);
+  digitalWrite(LED_hro, HIGH);
+  digitalWrite(LED_hri, HIGH);
+  digitalWrite(LED_hli, HIGH);
+  digitalWrite(LED_hlo, HIGH);
+  digitalWrite(LED_bro, HIGH);
+  digitalWrite(LED_bri, HIGH);
+  digitalWrite(LED_bli, HIGH);
+  digitalWrite(LED_blo, HIGH);
+  
+  if(!on_front){
+    delay(150);
+    digitalWrite(LED_hro, LOW);
+    digitalWrite(LED_hri, LOW);
+    digitalWrite(LED_hli, LOW);
+    digitalWrite(LED_hlo, LOW);
+  }
+  if(!on_back){
+    delay(150);
+    digitalWrite(LED_bro, LOW);
+    digitalWrite(LED_bri, LOW);
+    digitalWrite(LED_bli, LOW);
+    digitalWrite(LED_blo, LOW);
+  }
+  
 }
